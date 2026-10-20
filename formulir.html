@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Input User Data</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 32px 16px;
+      font-family: Arial, sans-serif;
+      background: #f2f5f7;
+      color: #222;
+    }
+    .form-container {
+      max-width: 650px;
+      margin: 0 auto;
+      padding: 24px;
+      background: #9bcfd0;
+      border-radius: 8px;
+      box-shadow: 0 5px 18px rgba(0,0,0,.12);
+    }
+    h1 {
+      margin: 0 0 22px;
+      text-align: center;
+      font-size: 23px;
+      font-weight: 500;
+    }
+    table { width: 100%; border-collapse: separate; border-spacing: 8px 10px; }
+    td:first-child { width: 145px; vertical-align: top; padding-top: 7px; }
+    input[type="text"], input[type="password"], input[type="email"], input[type="date"], textarea {
+      width: 100%;
+      max-width: 330px;
+      padding: 9px;
+      border: 1px solid #9aa5ad;
+      border-radius: 4px;
+      background: #fff;
+      font: inherit;
+    }
+    textarea { min-height: 90px; resize: vertical; }
+    .choices { display: flex; flex-wrap: wrap; gap: 12px; padding-top: 4px; }
+    .choices label { display: inline-flex; align-items: center; gap: 5px; }
+    .buttons { text-align: center; padding-top: 18px; }
+    button {
+      padding: 9px 20px;
+      margin: 0 5px;
+      border: 0;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 15px;
+    }
+    button[type="submit"] { background: #176b70; color: white; }
+    button[type="reset"] { background: #e7eeee; color: #222; }
+    #result { margin-top: 18px; padding: 12px; background: #fff; border-radius: 5px; display: none; }
+    @media (max-width: 480px) {
+      .form-container { padding: 16px; }
+      td:first-child { width: 110px; }
+      table, tbody, tr, td { display: block; width: 100%; }
+      td:first-child { padding-bottom: 2px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="form-container">
+    <h1>INPUT USER DATA</h1>
+
+    <form id="userForm">
+      <table>
+        <tr>
+          <td><label for="userId">USERNAME</label></td>
+          <td><input type="text" id="userId" name="userId" maxlength="20" required></td>
+        </tr>
+        <tr>
+          <td><label for="password">PASSWORD</label></td>
+          <td><input type="password" id="password" name="password" maxlength="30" required></td>
+        </tr>
+        <tr>
+          <td><label for="rePassword">RE-TYPE PASSWORD</label></td>
+          <td><input type="password" id="rePassword" name="rePassword" maxlength="30" required></td>
+        </tr>
+        <tr>
+          <td><label for="email">EMAIL ADDRESS</label></td>
+          <td><input type="email" id="email" name="email" required></td>
+        </tr>
+        <tr>
+          <td><label for="address">HOME ADDRESS</label></td>
+          <td><textarea id="address" name="address" rows="4" required></textarea></td>
+        </tr>
+        <tr>
+          <td><label for="birthDate">DATE OF BIRTH</label></td>
+          <td><input type="date" id="birthDate" name="birthDate" required></td>
+        </tr>
+        <tr>
+          <td>JENIS KELAMIN</td>
+          <td>
+            <div class="choices">
+              <label><input type="radio" name="jeniskelamin" value="Ganteng" required> Ganteng</label>
+              <label><input type="radio" name="jeniskelamin" value="Ayu"> Ayu</label>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>INTEREST AT</td>
+          <td>
+            <div class="choices">
+              <label><input type="checkbox" name="interest" value="Computer Science"> Computer Science</label>
+              <label><input type="checkbox" name="interest" value="Gossip"> Gossip</label>
+              <label><input type="checkbox" name="interest" value="Internet"> Internet</label>
+            </div>
+          </td>
+        </tr>
+      </table>
+      <div class="buttons">
+        <button type="submit">Send</button>
+        <button type="reset">Clear</button>
+      </div>
+    </form>
+
+    <section id="result" aria-live="polite"></section>
+  </main>
+
+  <script>
+    const form = document.getElementById('userForm');
+    const result = document.getElementById('result');
+
+    form.addEventListener('submit', function (event) {
+      event.preventDefault();
+
+      const password = document.getElementById('password').value;
+      const rePassword = document.getElementById('rePassword').value;
+
+      if (password !== rePassword) {
+        alert('Password dan Re-type Password harus sama.');
+        document.getElementById('rePassword').focus();
+        return;
+      }
+
+      const data = new FormData(form);
+      const interests = data.getAll('interest');
+      const jeniskelamin = data.get('jeniskelamin');
+
+      result.style.display = 'block';
+      result.innerHTML = `
+        <strong>Data berhasil diperiksa (contoh, belum disimpan ke database).</strong><br>
+        User ID: ${escapeHTML(data.get('userId'))}<br>
+        Email: ${escapeHTML(data.get('email'))}<br>
+        Home Address: ${escapeHTML(data.get('address'))}<br>
+        Date of Birth: ${escapeHTML(data.get('birthDate'))}<br>
+        jeniskelamin: ${escapeHTML(jeniskelamin || '-')}<br>
+        Interest: ${escapeHTML(interests.join(', ') || '-')}
+      `;
+    });
+
+    form.addEventListener('reset', function () {
+      result.style.display = 'none';
+      result.textContent = '';
+    });
+
+    function escapeHTML(value) {
+      return String(value ?? '').replace(/[&<>"']/g, function (char) {
+        return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char];
+      });
+    }
+  </script>
+</body>
+</html>
